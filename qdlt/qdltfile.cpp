@@ -32,7 +32,6 @@ extern "C"
 QDltFile::QDltFile()
 {
     filterFlag = false;
-    sortByTimeFlag = false;
 }
 
 QDltFile::~QDltFile()
@@ -487,11 +486,6 @@ bool QDltFile::isFilter() const
 void QDltFile::enableFilter(bool state)
 {
     filterFlag = state;
-}
-
-void QDltFile::enableSortByTime(bool state)
-{
-    sortByTimeFlag = state;
 }
 
 QVector<qint64> QDltFile::getIndexFilter() const

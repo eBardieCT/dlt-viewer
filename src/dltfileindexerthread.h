@@ -9,7 +9,15 @@ class DltFileIndexerThread :public QThread
 {
     Q_OBJECT
 public:
-    DltFileIndexerThread(DltFileIndexer *indexer, QDltFilterList *filterList, bool sortByTimeEnabled, QVector<qint64> *indexFilterList, QMultiMap<DltFileIndexerKey,qint64> *indexFilterListSorted, QDltPluginManager *pluginManager, QList<QDltPlugin*> *activeViewerPlugins, bool silentMode);
+    DltFileIndexerThread(DltFileIndexer *indexer,
+                         QDltFilterList *filterList,
+                         IndexSortType sortBy,
+                         QVector<qint64> *indexFilterList,
+                         QMultiMap<DltFileIndexerTimeKey,qint64> *indexFilterListTimeSorted,
+                         QMultiMap<DltFileIndexerTimestampKey,qint64> *indexFilterListTimestampSorted,
+                         QDltPluginManager *pluginManager,
+                         QList<QDltPlugin*> *activeViewerPlugins,
+                         bool silentMode);
     ~DltFileIndexerThread();
     void enqueueMessage(const QSharedPointer<QDltMsg> &msg, int index);
     void processMessage(QSharedPointer<QDltMsg> &msg, int index);
@@ -21,10 +29,11 @@ protected:
 private:
     DltFileIndexer *indexer;
     QDltFilterList *filterList;
-    bool sortByTimeEnabled;
+    IndexSortType sortBy;
 
     QVector<qint64> *indexFilterList;
-    QMultiMap<DltFileIndexerKey,qint64> *indexFilterListSorted;
+    QMultiMap<DltFileIndexerTimeKey,qint64> *indexFilterListTimeSorted;
+    QMultiMap<DltFileIndexerTimestampKey,qint64> *indexFilterListTimestampSorted;
 
     QDltPluginManager *pluginManager;
     QList<QDltPlugin*> *activeViewerPlugins;

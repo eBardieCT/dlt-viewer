@@ -131,7 +131,9 @@ MainWindow::MainWindow(QWidget *parent) :
     /*sync checkboxes with action toolbar*/
     ui->actionToggle_FiltersEnabled->setChecked(ui->filtersEnabled->isChecked());
     ui->actionToggle_PluginsEnabled->setChecked(ui->pluginsEnabled->isChecked());
-    ui->actionToggle_SortByTimeEnabled->setChecked(ui->checkBoxSortByTime->isChecked());
+    ui->actionDefaultSort->setChecked(ui->radioDefaultSort->isChecked());
+    ui->actionTimeSort->setChecked(ui->radioTimeSort->isChecked());
+    ui->actionTimestampSort->setChecked(ui->radioTimestampSort->isChecked());
 
     newCompleter = new QCompleter(&m_CompleterModel,this);
 
@@ -517,9 +519,13 @@ void MainWindow::initFileHandling()
     ui->pluginsEnabled->setChecked(pluginsEnabled);
 
     ui->filtersEnabled->setChecked(DltSettingsManager::getInstance()->value("startup/filtersEnabled", true).toBool());
-    ui->checkBoxSortByTime->setEnabled(ui->filtersEnabled->isChecked());
-    ui->checkBoxSortByTime->setChecked(DltSettingsManager::getInstance()->value("startup/sortByTimeEnabled", false).toBool());
+    ui->groupSort->setEnabled(ui->filtersEnabled->isChecked());
 
+    ui->radioDefaultSort->setChecked(false);
+    ui->radioTimeSort->setChecked(true);
+    ui->radioTimestampSort->setChecked(false);
+
+    syncCheckBoxesAndMenu();
 
     /* Process Project */
     if(OptManager::getInstance()->isProjectFile())
@@ -1656,7 +1662,6 @@ void MainWindow::reloadLogFileFinishFilter()
 
     // enable filter if requested
     qfile.enableFilter(DltSettingsManager::getInstance()->value("startup/filtersEnabled", true).toBool());
-    qfile.enableSortByTime(DltSettingsManager::getInstance()->value("startup/sortByTimeEnabled", false).toBool());
 
     // updateIndex, if messages are received in between
     updateIndex();
@@ -1799,7 +1804,9 @@ void MainWindow::reloadLogFile(bool update, bool multithreaded)
     pluginsEnabled = DltSettingsManager::getInstance()->value("startup/pluginsEnabled", true).toBool();
     dltIndexer->setPluginsEnabled(pluginsEnabled);
     dltIndexer->setFiltersEnabled(DltSettingsManager::getInstance()->value("startup/filtersEnabled", true).toBool());
-    dltIndexer->setSortByTimeEnabled(DltSettingsManager::getInstance()->value("startup/sortByTimeEnabled", false).toBool());
+
+    dltIndexer->setSortBy(DltSettingsManager::getInstance()->value("startup/sortBy", UNSORTED).toInt());
+    
     dltIndexer->setMultithreaded(multithreaded);
     if(settings->filterCache)
         dltIndexer->setFilterCache(settings->filterCacheName);
@@ -1850,7 +1857,7 @@ void MainWindow::reloadLogFileDefaultFilter()
     pluginsEnabled = DltSettingsManager::getInstance()->value("startup/pluginsEnabled", true).toBool();
     dltIndexer->setPluginsEnabled(pluginsEnabled);
     dltIndexer->setFiltersEnabled(DltSettingsManager::getInstance()->value("startup/filtersEnabled", true).toBool());
-    dltIndexer->setSortByTimeEnabled(DltSettingsManager::getInstance()->value("startup/sortByTimeEnabled", false).toBool());
+    dltIndexer->setSortBy(DltSettingsManager::getInstance()->value("startup/sortBy", UNSORTED).toInt());
 
     // start indexing
     dltIndexer->start();
@@ -6470,9 +6477,23 @@ void MainWindow::on_actionToggle_FiltersEnabled_triggered(bool checked)
     on_applyConfig_clicked();
 }
 
-void MainWindow::on_actionToggle_SortByTimeEnabled_triggered(bool checked)
+void MainWindow::on_actionDefaultSort_triggered(bool checked)
 {
-    ui->checkBoxSortByTime->setChecked(checked);
+    ui->radioDefaultSort->setChecked(checked);
+    ui->applyConfig->setFocus(); // have to set different focus first, so that scrollTo() works
+    on_applyConfig_clicked();
+}
+
+void MainWindow::on_actionTimeSort_triggered(bool checked)
+{
+    ui->radioTimeSort->setChecked(checked);
+    ui->applyConfig->setFocus(); // have to set different focus first, so that scrollTo() works
+    on_applyConfig_clicked();
+}
+
+void MainWindow::on_actionTimestampSort_triggered(bool checked)
+{
+    ui->radioTimestampSort->setChecked(checked);
     ui->applyConfig->setFocus(); // have to set different focus first, so that scrollTo() works
     on_applyConfig_clicked();
 }
@@ -6526,30 +6547,44 @@ void MainWindow::on_pluginsEnabled_toggled(bool checked)
 
 void MainWindow::on_filtersEnabled_toggled(bool checked)
 {
-    //DltSettingsManager::getInstance()->setValue("startup/filtersEnabled", checked);
     DltSettingsManager::getInstance()->setValue("startup/filtersEnabled", checked);
-    ui->checkBoxSortByTime->setEnabled(checked);
+    ui->groupSort->setEnabled(checked);
     applyConfigEnabled(true);
+    syncCheckBoxesAndMenu();
 }
 
-void MainWindow::on_checkBoxSortByTime_toggled(bool checked)
+void MainWindow::on_radioDefaultSort_toggled(bool checked)
 {
-    DltSettingsManager::getInstance()->setValue("startup/sortByTimeEnabled", checked);
-    applyConfigEnabled(true);
+    if(checked)
+    {
+        DltSettingsManager::getInstance()->setValue("startup/sortBy", UNSORTED);
+        applyConfigEnabled(true);
+    }
 }
 
+void MainWindow::on_radioTimeSort_toggled(bool checked)
+{
+    if(checked)
+    {
+        DltSettingsManager::getInstance()->setValue("startup/sortBy", SORT_BY_TIME);
+        applyConfigEnabled(true);
+    }
+}
+
+void MainWindow::on_radioTimestampSort_toggled(bool checked)
+{
+    if(checked)
+    {
+        DltSettingsManager::getInstance()->setValue("startup/sortBy", SORT_BY_TIMESTAMP);
+        applyConfigEnabled(true);
+    }
+}
 
 void MainWindow::syncCheckBoxesAndMenu()
 {
-    ui->actionToggle_SortByTimeEnabled->setChecked(ui->checkBoxSortByTime->isChecked());
-    if (ui->checkBoxSortByTime->isChecked())
-        {
-            ui->actionToggle_SortByTimeEnabled->setText("Stop sorting by Time");
-        }
-        else
-        {
-            ui->actionToggle_SortByTimeEnabled->setText("Sort by Time");
-        }
+    ui->actionDefaultSort->setChecked(ui->radioDefaultSort->isChecked());
+    ui->actionTimeSort->setChecked(ui->radioTimeSort->isChecked());
+    ui->actionTimestampSort->setChecked(ui->radioTimestampSort->isChecked());
 
     ui->actionToggle_PluginsEnabled->setChecked(ui->pluginsEnabled->isChecked());
     if (ui->pluginsEnabled->isChecked())
@@ -6565,10 +6600,12 @@ void MainWindow::syncCheckBoxesAndMenu()
     if (ui->filtersEnabled->isChecked())
         {
             ui->actionToggle_FiltersEnabled->setText("Disable Filters");
+            ui->menuSortBy->setEnabled(true);
         }
         else
         {
             ui->actionToggle_FiltersEnabled->setText("Enable Filters");
+            ui->menuSortBy->setEnabled(false);
         }
 
 

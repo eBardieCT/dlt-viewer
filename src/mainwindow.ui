@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1001</width>
-    <height>658</height>
+    <width>1261</width>
+    <height>1315</height>
    </rect>
   </property>
   <property name="focusPolicy">
@@ -90,8 +90,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1001</width>
-     <height>17</height>
+     <width>1261</width>
+     <height>46</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -186,7 +186,15 @@
     <addaction name="actionDefault_Filter_Create_Index"/>
     <addaction name="separator"/>
     <addaction name="actionToggle_FiltersEnabled"/>
-    <addaction name="actionToggle_SortByTimeEnabled"/>
+    <widget class="QMenu" name="menuSortBy">
+     <property name="title">
+      <string>Sort By</string>
+     </property>
+     <addaction name="actionDefaultSort"/>
+     <addaction name="actionTimeSort"/>
+     <addaction name="actionTimestampSort"/>
+    </widget>
+    <addaction name="menuSortBy"/>
    </widget>
    <widget class="QMenu" name="menuPlugin">
     <property name="title">
@@ -353,7 +361,7 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
+        <item row="0" column="1">
          <widget class="QCheckBox" name="pluginsEnabled">
           <property name="text">
            <string>Plugins Enabled</string>
@@ -364,16 +372,6 @@
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QCheckBox" name="checkBoxSortByTime">
-          <property name="text">
-           <string>Sorted by Time</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0" colspan="3">
          <widget class="QPushButton" name="applyConfig">
           <property name="enabled">
            <bool>false</bool>
@@ -386,6 +384,51 @@
             <normaloff>:/toolbar/png/weather-storm.png</normaloff>
             <disabledoff>:/toolbar/png/weather-clear.png</disabledoff>:/toolbar/png/weather-storm.png</iconset>
           </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QGroupBox" name="groupSort">
+          <property name="title">
+           <string>Sort by:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QRadioButton" name="radioDefaultSort">
+             <property name="text">
+              <string>None</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radioTimeSort">
+             <property name="text">
+              <string>Ti&amp;me</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="radioTimestampSort">
+             <property name="text">
+              <string>Timestamp</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -1480,20 +1523,37 @@
     <string>Toggle Plugins Enabled /Disabled</string>
    </property>
   </action>
-  <action name="actionToggle_SortByTimeEnabled">
+  <action name="actionDefaultSort">
    <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/toolbar/png/document-open-recent-2_gray.png</normaloff>
-     <normalon>:/toolbar/png/document-open-recent-2.png</normalon>:/toolbar/png/document-open-recent-2_gray.png</iconset>
+   <property name="checked">
+    <bool>false</bool>
    </property>
    <property name="text">
-    <string>Sort By Time</string>
+    <string>Default</string>
    </property>
-   <property name="toolTip">
-    <string>Toggle Sorted By Time</string>
+  </action>
+  <action name="actionTimeSort">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Time</string>
+   </property>
+  </action>
+  <action name="actionTimestampSort">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Timestamp</string>
    </property>
   </action>
  </widget>
@@ -1517,10 +1577,13 @@
  </customwidgets>
  <tabstops>
   <tabstop>tableView</tabstop>
-  <tabstop>applyConfig</tabstop>
   <tabstop>pluginsEnabled</tabstop>
   <tabstop>filtersEnabled</tabstop>
-  <tabstop>checkBoxSortByTime</tabstop>
+  <tabstop>sortBy</tabstop>
+  <tabstop>radioDefaultSort</tabstop>
+  <tabstop>radioTimeSort</tabstop>
+  <tabstop>radioTimestampSort</tabstop>
+  <tabstop>applyConfig</tabstop>
   <tabstop>pluginWidget</tabstop>
   <tabstop>tabWidget</tabstop>
   <tabstop>configWidget</tabstop>
@@ -1540,8 +1603,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>133</x>
-     <y>220</y>
+     <x>137</x>
+     <y>501</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -1556,8 +1619,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>133</x>
-     <y>220</y>
+     <x>137</x>
+     <y>462</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -1572,8 +1635,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>133</x>
-     <y>220</y>
+     <x>137</x>
+     <y>462</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -1588,8 +1651,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>133</x>
-     <y>220</y>
+     <x>137</x>
+     <y>462</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -1604,8 +1667,8 @@
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>133</x>
-     <y>220</y>
+     <x>137</x>
+     <y>462</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -1737,7 +1800,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>500</x>
-     <y>521</y>
+     <y>1275</y>
     </hint>
    </hints>
   </connection>
@@ -1749,7 +1812,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>500</x>
-     <y>521</y>
+     <y>1275</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>

@@ -7,18 +7,20 @@ DltFileIndexerThread::DltFileIndexerThread
 (
         DltFileIndexer *indexer,
         QDltFilterList *filterList,
-        bool sortByTimeEnabled,
+        IndexSortType sortBy,
         QVector<qint64> *indexFilterList,
-        QMultiMap<DltFileIndexerKey,qint64> *indexFilterListSorted,
+        QMultiMap<DltFileIndexerTimeKey,qint64> *indexFilterListTimeSorted,
+        QMultiMap<DltFileIndexerTimestampKey,qint64> *indexFilterListTimestampSorted,
         QDltPluginManager *pluginManager,
         QList<QDltPlugin*> *activeViewerPlugins,
         bool silentMode
 )
     :indexer(indexer),
       filterList(filterList),
-      sortByTimeEnabled(sortByTimeEnabled),
+      sortBy(sortBy),
       indexFilterList(indexFilterList),
-      indexFilterListSorted(indexFilterListSorted),
+      indexFilterListTimeSorted(indexFilterListTimeSorted),
+      indexFilterListTimestampSorted(indexFilterListTimestampSorted),
       pluginManager(pluginManager),
       activeViewerPlugins(activeViewerPlugins),
       silentMode(silentMode), msgQueue(1024)
@@ -124,9 +126,13 @@ void DltFileIndexerThread::processMessage(QSharedPointer<QDltMsg> &msg, int inde
     bool_result = filterList->checkFilter(*msg);
     if ( bool_result == true)
     {
-        if(sortByTimeEnabled)
+        if(sortBy == SORT_BY_TIME)
          {
-            indexFilterListSorted->insert(DltFileIndexerKey(msg->getTime(), msg->getMicroseconds()), index);
+            indexFilterListTimeSorted->insert(DltFileIndexerTimeKey(msg->getTime(), msg->getMicroseconds()), index);
+         }
+        else if(sortBy == SORT_BY_TIMESTAMP)
+         {
+            indexFilterListTimestampSorted->insert(DltFileIndexerTimestampKey(msg->getTimestamp()), index);
          }
         else
          {

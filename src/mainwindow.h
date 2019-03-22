@@ -499,6 +499,10 @@ private slots:
     // Config Items
     void on_pluginsEnabled_toggled(bool checked);
     void on_filtersEnabled_toggled(bool checked);
+    void on_radioDefaultSort_toggled(bool checked);
+    void on_radioTimeSort_toggled(bool checked);
+    void on_radioTimestampSort_toggled(bool checked);
+
     void on_applyConfig_clicked();
     void on_tabWidget_currentChanged(int index);
 
@@ -510,14 +514,14 @@ private slots:
 
     void on_pushButtonDefaultFilterUpdateCache_clicked();
 
-    void on_checkBoxSortByTime_toggled(bool checked);
-
     void on_actionMarker_triggered();
 
     void on_actionToggle_PluginsEnabled_triggered(bool checked);
     void on_actionToggle_FiltersEnabled_triggered(bool checked);
-    void on_actionToggle_SortByTimeEnabled_triggered(bool checked);
 
+    void on_actionDefaultSort_triggered(bool checked);
+    void on_actionTimeSort_triggered(bool checked);
+    void on_actionTimestampSort_triggered(bool checked);
 
 public slots:
 

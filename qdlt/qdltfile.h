@@ -207,12 +207,6 @@ public:
     */
     void enableFilter(bool state);
 
-    //! Enable or disable sort by time.
-    /*!
-      \return state true if sort by time, false if sort by time is disabled
-    */
-    void enableSortByTime(bool state);
-
     //! Check if message matches the filter.
     /*!
       \param msg The message to be checked

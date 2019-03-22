@@ -13,25 +13,43 @@
 #define DLT_FILE_INDEXER_SEG_SIZE (1024*1024)
 #define DLT_FILE_INDEXER_FILE_VERSION 2
 
-class DltFileIndexerKey
+enum IndexSortType {UNSORTED = 0, SORT_BY_TIME, SORT_BY_TIMESTAMP};
+
+class DltFileIndexerTimeKey
 {
 public:
-    DltFileIndexerKey(time_t time,unsigned int microseconds);
+    DltFileIndexerTimeKey(time_t time,unsigned int microseconds);
 
-    friend bool operator< (const DltFileIndexerKey &key1, const DltFileIndexerKey &key2);
+    friend bool operator< (const DltFileIndexerTimeKey &key1, const DltFileIndexerTimeKey &key2);
 
 private:
     time_t time;
     unsigned int microseconds;
 };
 
-inline bool operator< (const DltFileIndexerKey &key1, const DltFileIndexerKey &key2)
+inline bool operator< (const DltFileIndexerTimeKey &key1, const DltFileIndexerTimeKey &key2)
 {
     if(key1.time<key2.time)
         return true;
     if(key1.time>key2.time)
         return false;
     return (key1.microseconds<key2.microseconds);
+}
+
+class DltFileIndexerTimestampKey
+{
+public:
+    DltFileIndexerTimestampKey(time_t timestamp);
+
+    friend bool operator< (const DltFileIndexerTimestampKey &key1, const DltFileIndexerTimestampKey &key2);
+
+private:
+    time_t timestamp;
+};
+
+inline bool operator< (const DltFileIndexerTimestampKey &key1, const DltFileIndexerTimestampKey &key2)
+{
+    return (key1.timestamp<key2.timestamp);
 }
 
 class DltFileIndexer : public QThread
@@ -88,8 +106,8 @@ public:
     bool getFiltersEnabled() { return filtersEnabled; }
 
     // enable/disable sort by time
-    void setSortByTimeEnabled(bool enable) { sortByTimeEnabled = enable; }
-    bool setSortByTimeEnabled() { return sortByTimeEnabled; }
+    void setSortBy(int sort) { sortBy = static_cast<IndexSortType>(sort); }
+    int getSortBy() { return static_cast<int>(sortBy); }
 
     // enable/disable multithreaded
     void setMultithreaded(bool enable) { multithreaded = enable; }
@@ -142,7 +160,8 @@ private:
 
     // filtered index
     QVector<qint64> indexFilterList;
-    QMultiMap<DltFileIndexerKey,qint64> indexFilterListSorted;
+    QMultiMap<DltFileIndexerTimeKey,qint64> indexFilterListTimeSorted;
+    QMultiMap<DltFileIndexerTimestampKey,qint64> indexFilterListTimestampSorted;
 
     // getLogInfoList
     QList<int> getLogInfoList;
@@ -151,7 +170,7 @@ private:
     bool pluginsEnabled;
     bool filtersEnabled;
     bool multithreaded;
-    bool sortByTimeEnabled;
+    IndexSortType sortBy;
 
     // filter cache path
     QString filterCache;
